@@ -1,0 +1,19 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.10'
+
+    id 'net.mamoe.mirai-console' version '2.10.1'
+}
+
+group = 'com.github'
+version = '0.0.1'
+
+repositories {
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    mavenCentral()
+}
+
+dependencies{
+    implementation 'org.xerial:sqlite-jdbc:3.36.0.3'
+    implementation 'me.liuwj.ktorm:ktorm-core:3.1.0'
+}
