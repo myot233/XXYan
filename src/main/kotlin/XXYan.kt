@@ -1,9 +1,11 @@
 package com.github
 
 import com.github.commands.YanCommands
-import com.github.core.Paints
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.github.core.MessagePainter
+import me.gsycl2004.data.Sender
+import me.gsycl2004.data.Yan
 import me.liuwj.ktorm.entity.add
 import me.liuwj.ktorm.entity.toList
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
@@ -16,8 +18,6 @@ import net.mamoe.mirai.event.ListeningStatus
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.globalEventChannel
 import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
-import net.mamoe.mirai.message.data.PlainText
-import net.mamoe.mirai.message.data.toMessageChain
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import java.io.ByteArrayOutputStream
 import java.net.URL
@@ -85,10 +85,14 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
                     })
 
                 }
-                val image = Paints.paintTextMessage(
-                    head,
-                    yan.name,
-                    yan.yan.deserializeMiraiCode().filterIsInstance<PlainText>().joinToString("") { it.content })
+                val chain = yan.yan.deserializeMiraiCode()
+                val image = MessagePainter.paintMessage(
+                    Yan(
+                        Sender(
+                            yan.name, yan.head, 1, "无名之辈", "red"
+                        ), chain
+                    )
+                )
                 val byteStream = ByteArrayOutputStream()
                 ImageIO.write(image, "png", byteStream)
                 val miraiImage = group.uploadImage(byteStream.toByteArray().toExternalResource("png"))
