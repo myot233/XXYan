@@ -67,14 +67,13 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
             if (YanConfig.cares.keys.firstOrNull { this.message.contentToString().judgeRegex(it) } != null) {
                 val args = this.message.contentToString()
                     .matchList(YanConfig.cares.keys.first { this.message.contentToString().judgeRegex(it) })
-                println(args)
                 val pc = YanData.getSequence(YanConfig.cares[args[1]]!!)
                 val yan: YanEntity = if (args.size < 3) {
 
                     pc.toList().random(ThreadLocalRandom.current().asKotlinRandom())
                 } else pc.toList().filter {
                     it.yan.lowercase().contains(args[2].lowercase())
-                }.also { println(it) }.randomOrNull(ThreadLocalRandom.current().asKotlinRandom()) ?: YanEntity {
+                }.randomOrNull(ThreadLocalRandom.current().asKotlinRandom()) ?: YanEntity {
                     this.name = sender.nameCardOrNick
                     this.head = sender.avatarUrl
                     this.yan = "貌似他没说过这句话呢。"
