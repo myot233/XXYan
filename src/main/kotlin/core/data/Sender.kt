@@ -1,4 +1,4 @@
-package me.gsycl2004.data
+package com.github.core.data
 
 
 @kotlinx.serialization.Serializable

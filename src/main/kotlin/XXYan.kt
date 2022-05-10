@@ -1,11 +1,12 @@
 package com.github
 
+import com.github.commands.YanCommand
 import com.github.commands.YanCommands
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.github.core.MessagePainter
-import me.gsycl2004.data.Sender
-import me.gsycl2004.data.Yan
+import com.github.core.data.Sender
+import com.github.core.data.Yan
 import me.liuwj.ktorm.entity.add
 import me.liuwj.ktorm.entity.toList
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register

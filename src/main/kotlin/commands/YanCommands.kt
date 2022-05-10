@@ -28,10 +28,10 @@ object YanCommands : CompositeCommand(
         }.map {
             this.fromEvent.group[it]!!
         }.toSet()
-        fromEvent.group.sendMessage("目前关注的人有:\n${same.joinToString("\n"){ "${it.nameCardOrNick}(${it.id})" }}")
+        fromEvent.group.sendMessage("目前关注的人有:\n${same.joinToString("\n") { "${it.nameCardOrNick}(${it.id})" }}")
 
     }
 
 
-
 }
+

@@ -1,12 +1,9 @@
 package com.github.core
 
 import com.github.XXYan
-import me.gsycl2004.data.Sender
-import me.gsycl2004.data.Yan
+import com.github.core.data.Yan
 import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
-import net.mamoe.mirai.message.data.PlainText
-import net.mamoe.mirai.message.data.messageChainOf
 import java.awt.*
 import java.awt.geom.Ellipse2D
 import java.awt.geom.RoundRectangle2D
