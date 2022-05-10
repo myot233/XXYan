@@ -1,9 +1,12 @@
 package com.github.core
 
 import com.github.XXYan
+import me.gsycl2004.data.Sender
 import me.gsycl2004.data.Yan
 import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
+import net.mamoe.mirai.message.data.PlainText
+import net.mamoe.mirai.message.data.messageChainOf
 import java.awt.*
 import java.awt.geom.Ellipse2D
 import java.awt.geom.RoundRectangle2D
@@ -15,11 +18,13 @@ import java.util.*
 import javax.imageio.ImageIO
 import kotlin.io.path.Path
 
+
 object MessagePainter {
     private val standardFont: Font =
         Font.createFont(Font.TRUETYPE_FONT, XXYan.getResourceAsStream("msyh.ttc"))
 
     suspend fun paintMessage(yan: Yan): BufferedImage {
+
         var image = BufferedImage(880, 230, BufferedImage.TYPE_4BYTE_ABGR)
         fillColor(image)
         drawAvatar(yan, image)
@@ -27,13 +32,16 @@ object MessagePainter {
         val tempg2d = image.createGraphics()
         tempg2d.color = Color(164, 169, 179)
         tempg2d.font = standardFont.deriveFont(30f)
-        image = extImage(image, newWidth = tempg2d.fontMetrics.stringWidth(yan.sender.name) + length + 10 + 5)
-        val width = drawName(image, yan, length)
+        val width = tempg2d.fontMetrics.stringWidth(yan.sender.name) + length + 10 + 15
+        image = extImage(image, newWidth = width)
+
         var g2d = image.createGraphics()
         g2d.font = standardFont.deriveFont(40f)
+
         g2d.applyAntialias()
         if (yan.message.contains(net.mamoe.mirai.message.data.Image)) {
             val userImage = downloadAvatar(yan.message[Image]!!.queryUrl())
+
             println(yan.message[net.mamoe.mirai.message.data.Image.Key]!!.queryUrl())
             image =
                 extImage(image, newWidth = 165 * 2 + userImage.width + 10, newHeight = 85 * 2 + userImage.height)
@@ -45,8 +53,9 @@ object MessagePainter {
                 userImage.height.toDouble(),
                 25.toDouble(),
                 25.toDouble()
-            )
 
+            )
+            image = extImage(image, newWidth = width)
             g2d.drawImage(userImage, 165, 85, userImage.width, userImage.height, null)
         } else {
             val contentIm = drawContent(yan)
@@ -54,9 +63,11 @@ object MessagePainter {
             image =
                 extImage(image, 84 + bubble.height + 50, newWidth = listOf(width, bubble.width + 167 + 40).maxOf { it })
             g2d = image.createGraphics()
+
             g2d.applyAntialias()
             g2d.drawImage(bubble, 167, 84, null)
         }
+        drawName(image, yan, length)
         return image
 
     }
@@ -66,16 +77,15 @@ object MessagePainter {
         val g2d = image.createGraphics()
         g2d.fillRoundRect(0, 0, image.width, image.height, 30, 30)
         g2d.applyAntialias()
-        g2d.drawImage(contentIm, 30, 13, contentIm.width, contentIm.height, null)
+        g2d.drawImage(contentIm, 30, 18, contentIm.width, contentIm.height, null)
         return image
     }
 
     private fun drawContent(yan: Yan): BufferedImage {
         val texts = yan.message.joinToString("") { it.contentToString() }.split("\n").toMutableList()
-        var image = BufferedImage(680, 60, BufferedImage.TYPE_4BYTE_ABGR)
-        var cg2d = image.createGraphics()
+        var image = BufferedImage(680, 70, BufferedImage.TYPE_4BYTE_ABGR)
         val list = Vector<String>()
-        cg2d = image.createGraphics()
+        var cg2d: Graphics2D = image.createGraphics()
         cg2d.font = standardFont.deriveFont(40f)
         fun split(text: String, fontMetrics: FontMetrics, max: Int): List<String> {
             var num = 1

@@ -37,12 +37,12 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
         PermissionService.INSTANCE.register(PermissionId("yan", "command"), "yans")
     }
 
-    fun String.judgeRegex(name: String): Boolean {
+    private fun String.judgeRegex(name: String): Boolean {
         val regex = "^$name *(.*)".toRegex()
         return regex.containsMatchIn(this)
     }
 
-    fun String.matchList(name: String): List<String> {
+    private fun String.matchList(name: String): List<String> {
         val regex = "($name) *(.*)".toRegex()
         return regex.find(this)!!.groupValues.toList()
     }
