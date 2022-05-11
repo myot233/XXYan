@@ -41,7 +41,11 @@ object MessagePainter {
 
             println(yan.message[net.mamoe.mirai.message.data.Image.Key]!!.queryUrl())
             image =
-                extImage(image, newWidth = 165 * 2 + userImage.width + 10, newHeight = 85 * 2 + userImage.height)
+                extImage(
+                    image,
+                    newWidth = listOf(width, 165 * 2 + userImage.width + 10).maxOf { it },
+                    newHeight = 85 * 2 + userImage.height
+                )
             g2d = image.createGraphics()
             g2d.clip = RoundRectangle2D.Double(
                 165.toDouble(),
@@ -52,7 +56,6 @@ object MessagePainter {
                 25.toDouble()
 
             )
-            image = extImage(image, newWidth = width)
             g2d.drawImage(userImage, 165, 85, userImage.width, userImage.height, null)
         } else {
             val contentIm = drawContent(yan)

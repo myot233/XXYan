@@ -35,7 +35,15 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
     info("""to record someone's word""")
 }) {
     val permission by lazy {
-        PermissionService.INSTANCE.register(PermissionId("yan", "command"), "yans")
+        PermissionService.INSTANCE.register(PermissionId("yan", "command"), "yans", permissionAll)
+    }
+
+    val permissionAdmin by lazy {
+        PermissionService.INSTANCE.register(PermissionId("yan", "su"), "yans", permissionAll)
+    }
+
+    val permissionAll by lazy {
+        PermissionService.INSTANCE.register(PermissionId("yan", "*"), "yans")
     }
 
     private fun String.judgeRegex(name: String): Boolean {
@@ -86,17 +94,23 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
 
                 }
                 val chain = yan.yan.deserializeMiraiCode()
-                val image = MessagePainter.paintMessage(
-                    Yan(
-                        Sender(
-                            yan.name, yan.head, 1, "无名之辈", "red"
-                        ), chain
+                try {
+                    val image = MessagePainter.paintMessage(
+                        Yan(
+                            Sender(
+                                yan.name, yan.head, 1, "无名之辈", "red"
+                            ), chain
+                        )
                     )
-                )
-                val byteStream = ByteArrayOutputStream()
-                ImageIO.write(image, "png", byteStream)
-                val miraiImage = group.uploadImage(byteStream.toByteArray().toExternalResource("png"))
-                this.group.sendMessage(miraiImage)
+
+                    val byteStream = ByteArrayOutputStream()
+                    ImageIO.write(image, "png", byteStream)
+                    val miraiImage = group.uploadImage(byteStream.toByteArray().toExternalResource("png"))
+                    this.group.sendMessage(miraiImage)
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    this.group.sendMessage("遇到未知错误,生成yan失败")
+                }
             }
             return@subscribe ListeningStatus.LISTENING
         }

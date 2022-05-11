@@ -11,6 +11,7 @@ object YanCommand : SimpleCommand(
     XXYan,
     "makeYan",
     "SetYan",
+    parentPermission = XXYan.permissionAdmin
 
 ) {
 
