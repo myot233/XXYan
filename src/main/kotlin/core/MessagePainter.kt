@@ -200,7 +200,7 @@ fun BufferedImage.testImage() {
     Runtime.getRuntime().exec("explorer .\\$path")
 }
 
-fun BufferedImage.circleAvtar(): BufferedImage {
+fun BufferedImage.circleAvatar(): BufferedImage {
 
     var avatarImage: BufferedImage = this
     avatarImage = run {
