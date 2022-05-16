@@ -165,7 +165,7 @@ object MessagePainter {
     }
 
     private fun drawAvatar(yan: Yan, image: BufferedImage) {
-        val avatar = downloadAvatar(yan.sender.avatar).circleAvtar()
+        val avatar = downloadAvatar(yan.sender.avatar).circleAvatar()
         val g2d = image.createGraphics()
         g2d.applyAntialias()
         g2d.drawImage(avatar, 25, 20, 110, 110, null)
