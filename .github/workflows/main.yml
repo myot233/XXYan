@@ -57,9 +57,11 @@ jobs:
                 name: Grant execute permission for gradlew
                 run: chmod +x gradlew
             -
-                name: Build with Gradle
+                name: Build Plugin
                 run: ./gradlew buildPlugin
-                
+            -
+                name: Build LegacyPlugin
+                run: ./gradlew buildPluginLegacy
             - 
                 name: Create GitHub release
                 uses: marvinpinto/action-automatic-releases@latest
