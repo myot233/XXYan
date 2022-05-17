@@ -30,7 +30,7 @@ import kotlin.random.asKotlinRandom
 object XXYan : KotlinPlugin(JvmPluginDescription(
     id = "com.github.XXYan",
     name = "XXYan",
-    version = "0.0.2",
+    version = "0.0.4",
 ) {
     author("gsycl2004")
     info("""to record someone's word""")
