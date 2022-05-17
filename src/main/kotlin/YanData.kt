@@ -14,7 +14,6 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
     val name = text("name").bindTo { it.name }
     val head = text("head").bindTo { it.head }
     val yan = text("yan").bindTo { it.yan }
-    val title = text("")
     companion object {
         fun getSequence(id: Long): EntitySequence<YanEntity, YanData> {
             val database = Database.connect("jdbc:sqlite:data\\yan.db")
