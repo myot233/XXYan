@@ -43,7 +43,7 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
         PermissionService.INSTANCE.register(PermissionId("yan", "su"), "yans", permissionAll)
     }
 
-    val permissionAll by lazy {
+    private val permissionAll by lazy {
         PermissionService.INSTANCE.register(PermissionId("yan", "*"), "yans")
     }
 

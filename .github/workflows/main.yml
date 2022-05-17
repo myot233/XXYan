@@ -30,6 +30,13 @@ jobs:
                 with:
                     path: ./version.json
                     property: version
+            -
+              name: 读取当前信息
+              id: description
+              uses: ashley-taylor/read-json-property-action@v1.0
+              with:
+                  path: ./version.json
+                  property: description
 
             # add cache to improve workflow execution time
             -
@@ -60,6 +67,7 @@ jobs:
                     repo_token: "${{ secrets.GITHUB_TOKEN }}"
                     automatic_release_tag: "${{steps.version.outputs.value}}"
                     title: ${{ env.ReleaseVersion }}
+                    body: "${{steps.description.outputs.value}}"
                     prerelease: false
                     files: |
                          build/mirai/*
