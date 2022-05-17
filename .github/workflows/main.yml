@@ -23,6 +23,13 @@ jobs:
                 uses: actions/setup-java@v1
                 with:
                     java-version: ${{ matrix.java }}
+            - 
+                name: 读取当前版本号
+                id: version
+                uses: ashley-taylor/read-json-property-action@v1.0
+                with:
+                    path: ./version.json
+                    property: version
 
             # add cache to improve workflow execution time
             -
@@ -51,7 +58,7 @@ jobs:
                 uses: marvinpinto/action-automatic-releases@latest
                 with:
                     repo_token: "${{ secrets.GITHUB_TOKEN }}"
-                    automatic_release_tag: "0.0.2"
+                    automatic_release_tag: "${{steps.version.outputs.value}}"
                     title: ${{ env.ReleaseVersion }}
                     prerelease: false
                     files: |
