@@ -26,6 +26,7 @@ import java.util.concurrent.ThreadLocalRandom
 import javax.imageio.ImageIO
 import kotlin.random.asKotlinRandom
 
+
 object XXYan : KotlinPlugin(JvmPluginDescription(
     id = "com.github.XXYan",
     name = "XXYan",
@@ -99,7 +100,8 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
                         Yan(
                             Sender(
                                 yan.name, yan.head, 1, "无名之辈", "red"
-                            ), chain
+                            ),
+                            chain
                         )
                     )
 
@@ -117,19 +119,6 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
 
 
     }
-    //globalEventChannel().subscribe<GroupMessageEvent> {
-    //    if (message.contentToString().startsWith("test")){
-    //        val args = message.contentToString().split(" ")
-    //        val head = ImageIO.read(withContext(Dispatchers.IO) {
-    //            URL(sender.avatarUrl).openStream()
-    //        })
-    //        val image = Paints.paintTextMessage(head,senderName,args[1])
-    //        val byteStream = ByteArrayOutputStream()
-    //        ImageIO.write(image,"png",byteStream)
-    //        val miraiImage = group.uploadImage(byteStream.toByteArray().toExternalResource("png"))
-    //        this.group.sendMessage(miraiImage)
-    //    }
-    //    return@subscribe ListeningStatus.LISTENING
-    //}
+
 
 }

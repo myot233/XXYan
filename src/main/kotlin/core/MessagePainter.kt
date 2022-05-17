@@ -18,7 +18,7 @@ import kotlin.io.path.Path
 
 object MessagePainter {
     private val standardFont: Font =
-        Font.createFont(Font.TRUETYPE_FONT, XXYan.getResourceAsStream("msyh.ttc"))
+        Font.createFont(Font.TRUETYPE_FONT, XXYan.getResourceAsStream("sarasa-ui-tc-regular.ttf"))
 
     suspend fun paintMessage(yan: Yan): BufferedImage {
 
@@ -84,9 +84,9 @@ object MessagePainter {
     private fun drawContent(yan: Yan): BufferedImage {
         val texts = yan.message.joinToString("") { it.contentToString() }.split("\n").toMutableList()
         var image = BufferedImage(680, 70, BufferedImage.TYPE_4BYTE_ABGR)
-        val list = Vector<String>()
         var cg2d: Graphics2D = image.createGraphics()
         cg2d.font = standardFont.deriveFont(40f)
+        val list = Vector<String>()
         fun split(text: String, fontMetrics: FontMetrics, max: Int): List<String> {
             var num = 1
             if (fontMetrics.stringWidth(text.subSequence(0, text.length) as String) <= max) {
