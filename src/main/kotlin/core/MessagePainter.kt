@@ -1,6 +1,7 @@
 package com.github.core
 
 import com.github.XXYan
+import com.github.YanConfig
 import com.github.core.data.Yan
 import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
@@ -17,8 +18,11 @@ import kotlin.io.path.Path
 
 
 object MessagePainter {
-    private val standardFont: Font =
+    private val standardFont: Font = if (YanConfig.font == "sarasa-ui-tc-regular.ttf") {
         Font.createFont(Font.TRUETYPE_FONT, XXYan.getResourceAsStream("sarasa-ui-tc-regular.ttf"))
+    }else{
+        Font.createFont(Font.TRUETYPE_FONT,File(YanConfig.font))
+    }
 
     suspend fun paintMessage(yan: Yan): BufferedImage {
 
