@@ -77,7 +77,7 @@ object MessagePainter {
     }
 
     private fun drawBubble(contentIm: BufferedImage): BufferedImage {
-        val image = BufferedImage(contentIm.width + 60, contentIm.height + 50, BufferedImage.TYPE_4BYTE_ABGR)
+        val image = BufferedImage(contentIm.width + 60, contentIm.height + 45, BufferedImage.TYPE_4BYTE_ABGR)
         val g2d = image.createGraphics()
         g2d.fillRoundRect(0, 0, image.width, image.height, 30, 30)
         g2d.applyAntialias()
@@ -121,7 +121,7 @@ object MessagePainter {
         cg2d = image.createGraphics()
         cg2d.font = standardFont.deriveFont(40f)
         cg2d.color = Color(50, 50, 50)
-
+        cg2d.applyAntialias()
         new.forEachIndexed { index, s ->
             cg2d.drawString(s, 0, cg2d.fontMetrics.height + index * (cg2d.fontMetrics.height + 5))
         }
