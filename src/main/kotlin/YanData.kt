@@ -14,6 +14,7 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
     val name = text("name").bindTo { it.name }
     val head = text("head").bindTo { it.head }
     val yan = text("yan").bindTo { it.yan }
+    val title = text("title").bindTo { it.title }
     companion object {
         fun getSequence(id: Long): EntitySequence<YanEntity, YanData> {
             val database = Database.connect("jdbc:sqlite:data\\yan.db")
@@ -23,7 +24,8 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
                         CREATE TABLE IF NOT EXISTs "${id}"(
                         name TEXT,
                         head TEXT,
-                        yan TEXT
+                        yan TEXT,
+                        title TEXT
                         )                    
                     """.trimIndent()
                 )

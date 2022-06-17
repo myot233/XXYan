@@ -69,6 +69,7 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
                     name = senderName
                     head = sender.avatarUrl
                     this.yan = message.serializeToMiraiCode()
+                    this.title = if (sender.specialTitle != "") sender.specialTitle else YanConfig.defaultTitle
                 })
             }
             return@subscribe ListeningStatus.LISTENING
@@ -84,9 +85,10 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
                 } else pc.toList().filter {
                     it.yan.lowercase().contains(args[2].lowercase())
                 }.randomOrNull(ThreadLocalRandom.current().asKotlinRandom()) ?: YanEntity {
-                    this.name = sender.nameCardOrNick
-                    this.head = sender.avatarUrl
-                    this.yan = "貌似他没说过这句话呢。"
+                    this.name = "错误警告"
+                    this.head = "https://bpic.588ku.com/element_origin_min_pic/19/04/09/c1c737167e3c4e03d61ff71d043df148.jpg"
+                    this.yan = YanConfig.missText
+                    this.title = "警告"
                 }
                 val head = withContext(Dispatchers.IO) {
                     ImageIO.read(withContext(Dispatchers.IO) {
@@ -99,7 +101,7 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
                     val image = MessagePainter.paintMessage(
                         Yan(
                             Sender(
-                                yan.name, yan.head, 1, "无名之辈", "red"
+                                YanConfig.NameMap[YanConfig.cares[args[1]]] ?: yan.name, yan.head, 1,yan.title, "red"
                             ),
                             chain
                         )
@@ -111,7 +113,7 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
                     this.group.sendMessage(miraiImage)
                 } catch (ex: Exception) {
                     ex.printStackTrace()
-                    this.group.sendMessage("遇到未知错误,生成yan失败")
+                    this.group.sendMessage(YanConfig.failedText)
                 }
             }
             return@subscribe ListeningStatus.LISTENING
