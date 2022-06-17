@@ -69,7 +69,6 @@ jobs:
                     repo_token: "${{ secrets.GITHUB_TOKEN }}"
                     automatic_release_tag: "${{steps.version.outputs.value}}"
                     title: ${{ env.ReleaseVersion }}
-                    body: "${{steps.description.outputs.value}}"
                     prerelease: false
                     files: |
                          build/mirai/*
