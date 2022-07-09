@@ -16,6 +16,6 @@ object YanConfig:AutoSavePluginConfig("config") {
     @ValueDescription("这里可以指定字体")
     val font by value("sarasa-ui-tc-regular.ttf")
     @ValueDescription("一个用于指定指令对应触发的列表")
-    val cares:MutableMap<String,Long> by value(mutableMapOf("1" to 1L))
+    val cares:MutableMap<String,Long> by value(mutableMapOf("样例yan" to 1234567L))
 
 }

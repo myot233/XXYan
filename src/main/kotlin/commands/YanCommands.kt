@@ -5,9 +5,11 @@ import com.github.YanConfig
 import com.github.YanData
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
+import net.mamoe.mirai.console.command.SimpleCommand.Handler
 import net.mamoe.mirai.contact.User
 import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 
 object YanCommands : CompositeCommand(
     XXYan,
@@ -18,6 +20,12 @@ object YanCommands : CompositeCommand(
     suspend fun CommandSenderOnMessage<GroupMessageEvent>.length(user: User) {
         val sequence = YanData.getSequence(user.id)
         fromEvent.group.sendMessage("目前该用户的yan数量为:${sequence.rowSet.size()}")
+    }
+
+    @SubCommand
+    suspend fun CommandSenderOnMessage<MessageEvent>.unsetYan(name: String) {
+        val value = YanConfig.cares.remove(name)
+        fromEvent.subject.sendMessage("已成功移除${name} -> $value")
     }
 
     @SubCommand

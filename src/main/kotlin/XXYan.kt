@@ -64,7 +64,7 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
         YanConfig.reload()
         globalEventChannel().subscribe<GroupMessageEvent> {
             if (sender.id in YanConfig.cares.values && this.message.contentToString() != "") {
-                var yan = YanData.getSequence(sender.id)
+                val yan = YanData.getSequence(sender.id)
                 yan.add(YanEntity {
                     name = senderName
                     head = sender.avatarUrl
@@ -90,12 +90,6 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
                     this.yan = YanConfig.missText
                     this.title = "警告"
                 }
-                val head = withContext(Dispatchers.IO) {
-                    ImageIO.read(withContext(Dispatchers.IO) {
-                        URL(yan.head).openStream()
-                    })
-
-                }
                 val chain = yan.yan.deserializeMiraiCode()
                 try {
                     val image = MessagePainter.paintMessage(
@@ -108,11 +102,15 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
                     )
 
                     val byteStream = ByteArrayOutputStream()
-                    ImageIO.write(image, "png", byteStream)
-                    val miraiImage = group.uploadImage(byteStream.toByteArray().toExternalResource("png"))
-                    this.group.sendMessage(miraiImage)
+                    withContext(Dispatchers.IO) {
+                        ImageIO.write(image, "png", byteStream)
+                    }
+                    byteStream.toByteArray().toExternalResource("png").use {
+                        val miraiImage = group.uploadImage(it)
+                        this.group.sendMessage(miraiImage)
+                    }
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    logger.error(ex)
                     this.group.sendMessage(YanConfig.failedText)
                 }
             }
