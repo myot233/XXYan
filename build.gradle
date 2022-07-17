@@ -18,4 +18,5 @@ repositories {
 dependencies{
     implementation 'org.xerial:sqlite-jdbc:3.36.0.3'
     implementation 'org.ktorm:ktorm-core:3.5.0'
+    testImplementation "junit:junit:4.11"
 }

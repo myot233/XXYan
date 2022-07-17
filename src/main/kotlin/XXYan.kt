@@ -95,7 +95,11 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
                     val image = MessagePainter.paintMessage(
                         Yan(
                             Sender(
-                                YanConfig.NameMap[YanConfig.cares[args[1]]] ?: yan.name, yan.head, 1,yan.title, "red"
+                                YanConfig.NameMap[YanConfig.cares[args[1]]] ?: yan.name,
+                                { MessagePainter.downloadAvatar(yan.head) },
+                                1,
+                                yan.title,
+                                "red"
                             ),
                             chain
                         )
