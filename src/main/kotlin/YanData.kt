@@ -7,7 +7,7 @@ import org.ktorm.entity.EntitySequence
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.Table
 import org.ktorm.schema.text
-
+import java.sql.SQLException
 
 
 class YanData(id: Long) : Table<YanEntity>(id.toString()) {
@@ -19,6 +19,21 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
     val title = text("title").bindTo { it.title }
     companion object {
         private val database = Database.connect("jdbc:sqlite:file:${XXYan.resolveDataFile("yan.db")}")
+
+        private fun YanData.tryAlterColumn(columnName: String, type: String) {
+            try {
+                database.useConnection {
+                    val sql =
+                        """
+                            ALTER TABLE "${this@tryAlterColumn.tableName}" ADD COLUMN "$columnName" $type
+                        """.trimIndent()
+                    it.createStatement().execute(sql)
+                }
+                XXYan.logger.info("alterColumn done for ${this@tryAlterColumn.tableName}.$columnName")
+            } catch (e: SQLException) {
+                XXYan.logger.info("alterColumn fail for ${this@tryAlterColumn.tableName}.$columnName, Most likely it already exists")
+            }
+        }
 
         private fun YanData.createTableIfNotExist() {
             database.useConnection {
@@ -39,6 +54,7 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
         fun getSequence(id: Long): EntitySequence<YanEntity, YanData> {
             val table = YanData(id)
             table.createTableIfNotExist()
+            table.tryAlterColumn(table.title.name, table.title.sqlType.typeName)
             return database.sequenceOf(table)
         }
     }

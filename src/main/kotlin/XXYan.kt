@@ -1,5 +1,6 @@
 package com.github
 
+import com.github.commands.YanConsoleCommands
 import com.github.commands.YanCommand
 import com.github.commands.YanCommands
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +13,6 @@ import net.mamoe.mirai.console.permission.PermissionId
 import net.mamoe.mirai.console.permission.PermissionService
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
-import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.ListeningStatus
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.globalEventChannel
@@ -21,7 +21,6 @@ import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import org.ktorm.entity.add
 import org.ktorm.entity.toList
 import java.io.ByteArrayOutputStream
-import java.net.URL
 import java.util.concurrent.ThreadLocalRandom
 import javax.imageio.ImageIO
 import kotlin.random.asKotlinRandom
@@ -61,6 +60,7 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
         YanCommands.register()
         Class.forName("org.sqlite.JDBC")
         YanCommand.register()
+        YanConsoleCommands.register()
         YanConfig.reload()
         globalEventChannel().subscribe<GroupMessageEvent> {
             if (sender.id in YanConfig.cares.values && this.message.contentToString() != "") {
