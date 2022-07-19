@@ -1,11 +1,13 @@
 package com.github
 
-import me.liuwj.ktorm.database.Database
-import me.liuwj.ktorm.entity.EntitySequence
-import me.liuwj.ktorm.entity.forEach
-import me.liuwj.ktorm.entity.sequenceOf
-import me.liuwj.ktorm.schema.Table
-import me.liuwj.ktorm.schema.text
+import org.ktorm.database.Database
+import org.ktorm.dsl.from
+import org.ktorm.entity.Entity
+import org.ktorm.entity.EntitySequence
+import org.ktorm.entity.sequenceOf
+import org.ktorm.schema.Table
+import org.ktorm.schema.text
+import java.sql.SQLException
 
 
 class YanData(id: Long) : Table<YanEntity>(id.toString()) {
@@ -16,12 +18,28 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
     val yan = text("yan").bindTo { it.yan }
     val title = text("title").bindTo { it.title }
     companion object {
-        fun getSequence(id: Long): EntitySequence<YanEntity, YanData> {
-            val database = Database.connect("jdbc:sqlite:data\\yan.db")
+        private val database = Database.connect("jdbc:sqlite:file:${XXYan.resolveDataFile("yan.db")}")
+
+        private fun YanData.tryAlterColumn(columnName: String, type: String) {
+            try {
+                database.useConnection {
+                    val sql =
+                        """
+                            ALTER TABLE "${this@tryAlterColumn.tableName}" ADD COLUMN "$columnName" $type
+                        """.trimIndent()
+                    it.createStatement().execute(sql)
+                }
+                XXYan.logger.info("alterColumn done for ${this@tryAlterColumn.tableName}.$columnName")
+            } catch (e: SQLException) {
+                XXYan.logger.info("alterColumn fail for ${this@tryAlterColumn.tableName}.$columnName, Most likely it already exists")
+            }
+        }
+
+        private fun YanData.createTableIfNotExist() {
             database.useConnection {
                 it.createStatement().execute(
                     """
-                        CREATE TABLE IF NOT EXISTs "${id}"(
+                        CREATE TABLE IF NOT EXISTs "${this@createTableIfNotExist.tableName}"(
                         name TEXT,
                         head TEXT,
                         yan TEXT,
@@ -30,7 +48,14 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
                     """.trimIndent()
                 )
             }
-            return database.sequenceOf(YanData(id))
+        }
+
+
+        fun getSequence(id: Long): EntitySequence<YanEntity, YanData> {
+            val table = YanData(id)
+            table.createTableIfNotExist()
+            table.tryAlterColumn(table.title.name, table.title.sqlType.typeName)
+            return database.sequenceOf(table)
         }
     }
 }

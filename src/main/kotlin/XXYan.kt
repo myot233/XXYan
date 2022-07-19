@@ -1,5 +1,6 @@
 package com.github
 
+import com.github.commands.YanConsoleCommands
 import com.github.commands.YanCommand
 import com.github.commands.YanCommands
 import kotlinx.coroutines.Dispatchers
@@ -7,21 +8,19 @@ import kotlinx.coroutines.withContext
 import com.github.core.MessagePainter
 import com.github.core.data.Sender
 import com.github.core.data.Yan
-import me.liuwj.ktorm.entity.add
-import me.liuwj.ktorm.entity.toList
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.permission.PermissionId
 import net.mamoe.mirai.console.permission.PermissionService
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
-import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.ListeningStatus
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.globalEventChannel
 import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
+import org.ktorm.entity.add
+import org.ktorm.entity.toList
 import java.io.ByteArrayOutputStream
-import java.net.URL
 import java.util.concurrent.ThreadLocalRandom
 import javax.imageio.ImageIO
 import kotlin.random.asKotlinRandom
@@ -61,10 +60,11 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
         YanCommands.register()
         Class.forName("org.sqlite.JDBC")
         YanCommand.register()
+        YanConsoleCommands.register()
         YanConfig.reload()
         globalEventChannel().subscribe<GroupMessageEvent> {
             if (sender.id in YanConfig.cares.values && this.message.contentToString() != "") {
-                var yan = YanData.getSequence(sender.id)
+                val yan = YanData.getSequence(sender.id)
                 yan.add(YanEntity {
                     name = senderName
                     head = sender.avatarUrl
@@ -90,12 +90,6 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
                     this.yan = YanConfig.missText
                     this.title = "警告"
                 }
-                val head = withContext(Dispatchers.IO) {
-                    ImageIO.read(withContext(Dispatchers.IO) {
-                        URL(yan.head).openStream()
-                    })
-
-                }
                 val chain = yan.yan.deserializeMiraiCode()
                 try {
                     val image = MessagePainter.paintMessage(
@@ -108,11 +102,15 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
                     )
 
                     val byteStream = ByteArrayOutputStream()
-                    ImageIO.write(image, "png", byteStream)
-                    val miraiImage = group.uploadImage(byteStream.toByteArray().toExternalResource("png"))
-                    this.group.sendMessage(miraiImage)
+                    withContext(Dispatchers.IO) {
+                        ImageIO.write(image, "png", byteStream)
+                    }
+                    byteStream.toByteArray().toExternalResource("png").use {
+                        val miraiImage = group.uploadImage(it)
+                        this.group.sendMessage(miraiImage)
+                    }
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    logger.error(ex)
                     this.group.sendMessage(YanConfig.failedText)
                 }
             }
