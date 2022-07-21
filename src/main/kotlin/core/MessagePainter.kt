@@ -90,8 +90,8 @@ object MessagePainter {
         var image = BufferedImage(680, 70, BufferedImage.TYPE_4BYTE_ABGR)
         var cg2d: Graphics2D = image.createGraphics()
         cg2d.font = standardFont.deriveFont(40f)
-        val list = Vector<String>()
         fun split(text: String, fontMetrics: FontMetrics, max: Int): List<String> {
+            val list = Vector<String>()
             var num = 1
             if (fontMetrics.stringWidth(text.subSequence(0, text.length) as String) <= max) {
                 list.add(text)
@@ -169,13 +169,13 @@ object MessagePainter {
     }
 
     private fun drawAvatar(yan: Yan, image: BufferedImage) {
-        val avatar = downloadAvatar(yan.sender.avatar).circleAvatar()
+        val avatar = yan.sender.avatarProvider.invoke().circleAvatar()
         val g2d = image.createGraphics()
         g2d.applyAntialias()
         g2d.drawImage(avatar, 25, 20, 110, 110, null)
     }
 
-    private fun downloadAvatar(url: String): BufferedImage {
+    fun downloadAvatar(url: String): BufferedImage {
         return ImageIO.read(URL(url))
     }
 

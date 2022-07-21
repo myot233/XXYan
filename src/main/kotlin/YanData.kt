@@ -31,7 +31,8 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
                 }
                 XXYan.logger.info("alterColumn done for ${this@tryAlterColumn.tableName}.$columnName")
             } catch (e: SQLException) {
-                XXYan.logger.info("alterColumn fail for ${this@tryAlterColumn.tableName}.$columnName, Most likely it already exists")
+                // alterColumn fail for ${this@tryAlterColumn.tableName}.$columnName, Most likely it already exists
+                // do nothing
             }
         }
 
