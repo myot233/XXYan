@@ -2,7 +2,8 @@ package com.github.core
 
 import com.github.XXYan
 import com.github.YanConfig
-import com.github.core.data.Yan
+import com.github.core.data.ShowYanTask
+import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
 import java.awt.*
@@ -24,7 +25,7 @@ object MessagePainter {
         Font.createFont(Font.TRUETYPE_FONT,File(YanConfig.font))
     }
 
-    suspend fun paintMessage(yan: Yan): BufferedImage {
+    suspend fun paintMessage(yan: ShowYanTask): BufferedImage {
 
         var image = BufferedImage(880, 230, BufferedImage.TYPE_4BYTE_ABGR)
         fillColor(image)
@@ -85,8 +86,13 @@ object MessagePainter {
         return image
     }
 
-    private fun drawContent(yan: Yan): BufferedImage {
-        val texts = yan.message.joinToString("") { it.contentToString() }.split("\n").toMutableList()
+    private fun drawContent(yan: ShowYanTask): BufferedImage {
+        val texts = yan.message.joinToString("") {
+            when(it) {
+                is At -> it.getDisplay(yan.group)
+                else -> it.contentToString()
+            }
+        }.split("\n").toMutableList()
         var image = BufferedImage(680, 70, BufferedImage.TYPE_4BYTE_ABGR)
         var cg2d: Graphics2D = image.createGraphics()
         cg2d.font = standardFont.deriveFont(40f)
@@ -146,7 +152,7 @@ object MessagePainter {
     }
 
 
-    private fun drawName(image: BufferedImage, yan: Yan, length: Int): Int {
+    private fun drawName(image: BufferedImage, yan: ShowYanTask, length: Int): Int {
         val g2d = image.createGraphics()
         g2d.applyAntialias()
         g2d.color = Color(164, 169, 179)
@@ -156,7 +162,7 @@ object MessagePainter {
     }
 
 
-    private fun drawTitle(image: BufferedImage, yan: Yan): Int {
+    private fun drawTitle(image: BufferedImage, yan: ShowYanTask): Int {
         val g2d = image.createGraphics()
         g2d.applyAntialias()
         g2d.font = standardFont.deriveFont(25f).deriveFont(Font.BOLD)
@@ -168,7 +174,7 @@ object MessagePainter {
         return 170 + wordLength + 25
     }
 
-    private fun drawAvatar(yan: Yan, image: BufferedImage) {
+    private fun drawAvatar(yan: ShowYanTask, image: BufferedImage) {
         val avatar = yan.sender.avatarProvider.invoke().circleAvatar()
         val g2d = image.createGraphics()
         g2d.applyAntialias()

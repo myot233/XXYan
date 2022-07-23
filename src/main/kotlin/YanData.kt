@@ -17,6 +17,8 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
     val head = text("head").bindTo { it.head }
     val yan = text("yan").bindTo { it.yan }
     val title = text("title").bindTo { it.title }
+    val yanCode = text("yanCode").bindTo { it.yanCode }
+
     companion object {
         private val database = Database.connect("jdbc:sqlite:file:${XXYan.resolveDataFile("yan.db")}")
 
@@ -56,6 +58,7 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
             val table = YanData(id)
             table.createTableIfNotExist()
             table.tryAlterColumn(table.title.name, table.title.sqlType.typeName)
+            table.tryAlterColumn(table.yanCode.name, table.yanCode.sqlType.typeName)
             return database.sequenceOf(table)
         }
     }

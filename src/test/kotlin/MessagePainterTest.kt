@@ -2,7 +2,7 @@ package com.github
 
 import com.github.core.MessagePainter
 import com.github.core.data.Sender
-import com.github.core.data.Yan
+import com.github.core.data.ShowYanTask
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -30,7 +30,7 @@ class MessagePainterTest {
             """.trimIndent()))
             .build()
         val image = MessagePainter.paintMessage(
-            Yan(
+            ShowYanTask(
                 Sender(
                     "testName",
                     avatarProvider,
@@ -38,6 +38,7 @@ class MessagePainterTest {
                     "testTitle",
                     "red"
                 ),
+                group = null,
                 messageChain
             )
         )
