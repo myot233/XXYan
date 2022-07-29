@@ -1,9 +1,9 @@
 package com.github.core
 
 import com.github.XXYan
+import com.github.XXYan.serializeToDrawText
 import com.github.YanConfig
 import com.github.core.data.ShowYanTask
-import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
 import java.awt.*
@@ -42,9 +42,10 @@ object MessagePainter {
 
         g2d.applyAntialias()
         if (yan.message.contains(net.mamoe.mirai.message.data.Image)) {
-            val userImage = downloadAvatar(yan.message[Image]!!.queryUrl())
+            val url = yan.message[Image]!!.queryUrl()
+            val userImage = downloadAvatar(url)
 
-            println(yan.message[net.mamoe.mirai.message.data.Image.Key]!!.queryUrl())
+            println("paintMessage for $url")
             image =
                 extImage(
                     image,
@@ -87,12 +88,8 @@ object MessagePainter {
     }
 
     private fun drawContent(yan: ShowYanTask): BufferedImage {
-        val texts = yan.message.joinToString("") {
-            when(it) {
-                is At -> it.getDisplay(yan.group)
-                else -> it.contentToString()
-            }
-        }.split("\n").toMutableList()
+        val drawText = yan.message.serializeToDrawText(yan.group)
+        val drawTextLines = drawText.split("\n").toMutableList()
         var image = BufferedImage(680, 70, BufferedImage.TYPE_4BYTE_ABGR)
         var cg2d: Graphics2D = image.createGraphics()
         cg2d.font = standardFont.deriveFont(40f)
@@ -112,15 +109,15 @@ object MessagePainter {
                 }
             }
             list.add(text.subSequence(0, num) as String)
-            split(text.subSequence(num, text.length) as String, fontMetrics, max)
+            list.addAll(split(text.subSequence(num, text.length) as String, fontMetrics, max))
 
             return list
         }
 
-        val iterator = texts.iterator()
+        val iterator = drawTextLines.iterator()
         val new = ArrayList<String>()
         iterator.forEach { it ->
-            println(it)
+            println("drawContent iterate for $it")
             new += split(it, fontMetrics = cg2d.fontMetrics, 680)
         }
         image = extImage(image, (cg2d.fontMetrics.height + 5) * new.size, Color(0, 0, 0, 0))

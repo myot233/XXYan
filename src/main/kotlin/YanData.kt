@@ -1,9 +1,13 @@
 package com.github
 
+import com.github.XXYan.serializeToYanCode
+import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
 import org.ktorm.database.Database
-import org.ktorm.dsl.from
-import org.ktorm.entity.Entity
+import org.ktorm.dsl.delete
+import org.ktorm.dsl.eq
+import org.ktorm.dsl.update
 import org.ktorm.entity.EntitySequence
+import org.ktorm.entity.forEach
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.Table
 import org.ktorm.schema.text
@@ -53,12 +57,41 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
             }
         }
 
-
-        fun getSequence(id: Long): EntitySequence<YanEntity, YanData> {
+        fun updateDataVersion(id: Long): String {
             val table = YanData(id)
             table.createTableIfNotExist()
             table.tryAlterColumn(table.title.name, table.title.sqlType.typeName)
             table.tryAlterColumn(table.yanCode.name, table.yanCode.sqlType.typeName)
+            var countNewYanCode = 0
+            var countEmptyYanCode = 0
+            database.sequenceOf(table).forEach { yanEntity ->
+                if (yanEntity.yanCode == "") {
+                    val targetYanText = yanEntity.yan
+                    val newYanCode = yanEntity.yan.deserializeMiraiCode().serializeToYanCode()
+                    if (newYanCode != "") {
+                        database.update(table) {
+                            set(table.yanCode, newYanCode)
+                            where {
+                                it.yan eq targetYanText
+                            }
+                        }
+                        countNewYanCode++
+                    } else {
+                        database.delete(table) {
+                            it.yan eq targetYanText
+                        }
+                        countEmptyYanCode++
+                    }
+                }
+            }
+            val message = "updateDataVersion done for ${table.tableName}, countNewYanCode = $countNewYanCode, countEmptyYanCode = $countEmptyYanCode"
+            XXYan.logger.info(message)
+            return message
+        }
+
+        fun getSequence(id: Long): EntitySequence<YanEntity, YanData> {
+            val table = YanData(id)
+            table.createTableIfNotExist()
             return database.sequenceOf(table)
         }
     }
