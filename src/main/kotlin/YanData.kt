@@ -50,7 +50,8 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
                         name TEXT,
                         head TEXT,
                         yan TEXT,
-                        title TEXT
+                        title TEXT,
+                        yanCode Text
                         )                    
                     """.trimIndent()
                 )
@@ -84,6 +85,7 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
                     }
                 }
             }
+
             val message = "updateDataVersion done for ${table.tableName}, countNewYanCode = $countNewYanCode, countEmptyYanCode = $countEmptyYanCode"
             XXYan.logger.info(message)
             return message
@@ -91,6 +93,7 @@ class YanData(id: Long) : Table<YanEntity>(id.toString()) {
 
         fun getSequence(id: Long): EntitySequence<YanEntity, YanData> {
             val table = YanData(id)
+            updateDataVersion(id)
             table.createTableIfNotExist()
             return database.sequenceOf(table)
         }

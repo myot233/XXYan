@@ -13,6 +13,7 @@ import net.mamoe.mirai.console.permission.PermissionService
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.contact.Group
+import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.ListeningStatus
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.globalEventChannel
@@ -72,8 +73,8 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
         YanCommand.register()
         YanCommands.register()
         YanConfig.reload()
-        globalEventChannel().subscribe<GroupMessageEvent> {
-            if (YanConfig.cares.keys.firstOrNull { this.message.contentToString().judgeRegex(it) } != null) {
+        globalEventChannel().subscribe<GroupMessageEvent> { it ->
+            if (YanConfig.cares.keys.firstOrNull { this.message.contentToString().judgeRegex(it)} != null) {
                 it.handleAsShowYan()
             } else if (sender.id in YanConfig.cares.values && this.message.contentToString() != "") {
                 it.handleAsHistory()
@@ -98,6 +99,7 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
     }
 
     private suspend fun GroupMessageEvent.handleAsShowYan() {
+        println("${this.sender.nameCardOrNick} from ${this.group.name} has requested")
         val args = this.message.contentToString()
             .matchList(YanConfig.cares.keys.first { this.message.contentToString().judgeRegex(it) })
         val searchId = args[1];
@@ -109,8 +111,10 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
         val yanList = YanData.getSequence(YanConfig.cares[searchId]!!).toList()
         val yan: YanEntity? = if (searchYanCode == null) {
             yanList.random(ThreadLocalRandom.current().asKotlinRandom())
-        } else yanList.filter{
-            it.yanCode != "" && it.yanCode.lowercase().contains(searchYanCode)
+        } else yanList.filter {
+            //it.yanCode != "" &&
+            it.yanCode.lowercase().contains(searchYanCode)
+
         }.randomOrNull(ThreadLocalRandom.current().asKotlinRandom())
         val showYanTask = if (yan != null) {
             val chain = yan.yan.deserializeMiraiCode()
@@ -137,6 +141,7 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
                 group,
                 messageChainOf(PlainText(YanConfig.missText))
             )
+
         }
 
 
@@ -164,7 +169,7 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
      */
     fun MessageChain.serializeToDrawText(group: Group?): String {
         val text = this.joinToString("") {
-            when(it) {
+            when (it) {
                 is At -> it.getDisplay(group)
                 is PlainText -> it.contentToString()
                 else -> ""
@@ -179,7 +184,7 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
     fun MessageChain.serializeToYanCode(): String {
         return this.stream()
             .map {
-                when(it) {
+                when (it) {
                     is PlainText -> it.contentToString()
                     is Image -> it.contentToString()
                     is Face -> it.contentToString()
