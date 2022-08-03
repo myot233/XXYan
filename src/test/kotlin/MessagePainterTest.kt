@@ -16,18 +16,27 @@ import javax.imageio.ImageIO
 class MessagePainterTest {
 
     @Test
-    fun testblock() {
-        runBlocking { test() }
-    }
-
-    suspend fun test() {
-        val avatarProvider = {SimpleGeometricImageProvider.apply("矩形 50,50 上下渐变,3,74,144,255,10,151,223,255")}
-        val messageChain = MessageChainBuilder()
-            .append(PlainText("""
+    fun testMultiLines() {
+        runBlocking { test(
+            """
                 foo
                 bar
                 yan
-            """.trimIndent()))
+            """.trimIndent()) }
+    }
+
+    @Test
+    fun testLongLine() {
+        runBlocking { test(
+            """
+                fooooooooooooooooooooooooooooooooooooooooooooooooEOF
+            """.trimIndent()) }
+    }
+
+    suspend fun test(text: String) {
+        val avatarProvider = {SimpleGeometricImageProvider.apply("矩形 50,50 上下渐变,3,74,144,255,10,151,223,255")}
+        val messageChain = MessageChainBuilder()
+            .append(PlainText(text))
             .build()
         val image = MessagePainter.paintMessage(
             ShowYanTask(
