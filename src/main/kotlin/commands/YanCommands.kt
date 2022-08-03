@@ -27,14 +27,11 @@ object YanCommands : CompositeCommand(
     }
 
     @SubCommand
-    suspend fun CommandSenderOnMessage<MessageEvent>.makeYan(name: String, member: Member) {
-        makeYan(name, member.id)
-    }
-
-    @SubCommand
-    suspend fun CommandSender.makeYan(name: String, userId: Long) {
-        YanConfig.cares[name] = userId
-        this.sendMessage("已成功添加${name} -> $userId")
+    suspend fun CommandSender.updateAllDataVersion() {
+        val messages = YanConfig.cares.values.map {
+            YanData.updateDataVersion(it)
+        }.toList()
+        this.sendMessage("操作成功: $messages")
     }
 
     @SubCommand

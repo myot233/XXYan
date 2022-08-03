@@ -12,14 +12,12 @@ import net.mamoe.mirai.console.permission.PermissionId
 import net.mamoe.mirai.console.permission.PermissionService
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
+import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.event.ListeningStatus
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.globalEventChannel
 import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
-import net.mamoe.mirai.message.data.Face
-import net.mamoe.mirai.message.data.Image
-import net.mamoe.mirai.message.data.MessageChain
-import net.mamoe.mirai.message.data.PlainText
+import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import org.ktorm.entity.add
 import org.ktorm.entity.toList
@@ -38,6 +36,15 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
     author("gsycl2004")
     info("""to record someone's word""")
 }) {
+    private val notFoundImage by lazy {
+        val inputStream = getResourceAsStream("notFoundImage.jpg")
+        if (inputStream != null) {
+            ImageIO.read(inputStream)
+        } else {
+            throw UnsupportedOperationException("notFoundImage初始化失败")
+        }
+    }
+
     val permission by lazy {
         PermissionService.INSTANCE.register(PermissionId("yan", "command"), "yans", permissionAll)
     }
@@ -77,14 +84,17 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
     }
 
     private fun GroupMessageEvent.handleAsHistory() {
-        val yan = YanData.getSequence(sender.id)
-        yan.add(YanEntity {
-            name = senderName
-            head = sender.avatarUrl
-            this.yan = message.serializeToMiraiCode()
-            this.yanCode = message.serializeToToYanCode()
-            this.title = if (sender.specialTitle != "") sender.specialTitle else YanConfig.defaultTitle
-        })
+        val drawText = message.serializeToDrawText(group)
+        if (drawText != "") {
+            val sequence = YanData.getSequence(sender.id)
+            sequence.add(YanEntity {
+                name = senderName
+                head = sender.avatarUrl
+                this.yan = message.serializeToMiraiCode()
+                this.yanCode = message.serializeToYanCode()
+                this.title = if (sender.specialTitle != "") sender.specialTitle else YanConfig.defaultTitle
+            })
+        }
     }
 
     private suspend fun GroupMessageEvent.handleAsShowYan() {
@@ -97,35 +107,42 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
             args[2].lowercase()
         }
         val yanList = YanData.getSequence(YanConfig.cares[searchId]!!).toList()
-        val yan: YanEntity = if (searchYanCode == null) {
+        val yan: YanEntity? = if (searchYanCode == null) {
             yanList.random(ThreadLocalRandom.current().asKotlinRandom())
-        } else yanList.filter {
-            val searchSource = if (it.yanCode == "") {
-                it.yan
-            } else {
-                it.yanCode
-            }
-            searchSource.lowercase().contains(searchYanCode)
-        }.randomOrNull(ThreadLocalRandom.current().asKotlinRandom()) ?: YanEntity {
-            this.name = "错误警告"
-            this.head = "https://bpic.588ku.com/element_origin_min_pic/19/04/09/c1c737167e3c4e03d61ff71d043df148.jpg"
-            this.yan = YanConfig.missText
-            this.title = "警告"
+        } else yanList.filter{
+            it.yanCode != "" && it.yanCode.lowercase().contains(searchYanCode)
+        }.randomOrNull(ThreadLocalRandom.current().asKotlinRandom())
+        val showYanTask = if (yan != null) {
+            val chain = yan.yan.deserializeMiraiCode()
+            ShowYanTask(
+                Sender(
+                    YanConfig.NameMap[YanConfig.cares[searchId]] ?: yan.name,
+                    { MessagePainter.downloadAvatar(yan.head) },
+                    1,
+                    yan.title,
+                    "red"
+                ),
+                group,
+                chain
+            )
+        } else {
+            ShowYanTask(
+                Sender(
+                    "错误警告",
+                    { notFoundImage!! },
+                    1,
+                    "警告",
+                    "red"
+                ),
+                group,
+                messageChainOf(PlainText(YanConfig.missText))
+            )
         }
-        val chain = yan.yan.deserializeMiraiCode()
+
+
         try {
             val image = MessagePainter.paintMessage(
-                ShowYanTask(
-                    Sender(
-                        YanConfig.NameMap[YanConfig.cares[searchId]] ?: yan.name,
-                        { MessagePainter.downloadAvatar(yan.head) },
-                        1,
-                        yan.title,
-                        "red"
-                    ),
-                    group,
-                    chain
-                )
+                showYanTask
             )
 
             val byteStream = ByteArrayOutputStream()
@@ -142,17 +159,30 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
         }
     }
 
+    /**
+     * DrawText: 为绘制图片设计的格式，某些SingleMessage类型会被忽略
+     */
+    fun MessageChain.serializeToDrawText(group: Group?): String {
+        val text = this.joinToString("") {
+            when(it) {
+                is At -> it.getDisplay(group)
+                is PlainText -> it.contentToString()
+                else -> ""
+            }
+        }
+        return text
+    }
 
     /**
-     * YanCode: 为yan检索设计的格式
+     * YanCode: 为yan检索设计的格式，某些SingleMessage类型会被忽略
      */
-    fun MessageChain.serializeToToYanCode(): String {
+    fun MessageChain.serializeToYanCode(): String {
         return this.stream()
             .map {
                 when(it) {
-                    is PlainText -> it.content
-                    is Image -> "[图片]"
-                    is Face -> "[表情]"
+                    is PlainText -> it.contentToString()
+                    is Image -> it.contentToString()
+                    is Face -> it.contentToString()
                     else -> ""
                 }
             }
