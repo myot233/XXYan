@@ -1,7 +1,7 @@
 package com.github
 
-import com.github.commands.YanCommand
-import com.github.commands.YanCommands
+import com.github.commands.YanConfigCommands
+import com.github.commands.YanQueryCommands
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.github.core.MessagePainter
@@ -70,8 +70,8 @@ object XXYan : KotlinPlugin(JvmPluginDescription(
 
     override fun onEnable() {
         Class.forName("org.sqlite.JDBC")
-        YanCommand.register()
-        YanCommands.register()
+        YanConfigCommands.register()
+        YanQueryCommands.register()
         YanConfig.reload()
         globalEventChannel().subscribe<GroupMessageEvent> { it ->
             if (YanConfig.cares.keys.firstOrNull { this.message.contentToString().judgeRegex(it)} != null) {
