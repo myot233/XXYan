@@ -11,7 +11,7 @@
 
 ## 玩法
 
-调用指令`/makeYan <name> <member>`来注册一个对他人说话的监听
+调用指令`/makeYan at <name> <member>`或`/makeYan id <name> <id>`来注册一个对他人说话的监听
 ![img1](/image/img1.png)  
 之后再群内发送`name [content]`时便就会返回他人**自监听开始**的某一句话
 ![img2](/image/img2.png)  

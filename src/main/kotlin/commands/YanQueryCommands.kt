@@ -4,12 +4,9 @@ import com.github.XXYan
 import com.github.YanConfig
 import com.github.YanData
 import net.mamoe.mirai.console.command.CommandSender
-import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
-import net.mamoe.mirai.contact.Member
-import net.mamoe.mirai.event.events.MessageEvent
 
-object YanCommands : CompositeCommand(
+object YanQueryCommands : CompositeCommand(
     XXYan,
     "yan",
     parentPermission = XXYan.permission
